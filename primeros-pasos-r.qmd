@@ -1,0 +1,1701 @@
+---
+title: "Primeros pasos en R"
+subtitle: "De los datos al análisis"
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: false
+    code-copy: true
+    code-overflow: wrap
+    smooth-scroll: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{=html}
+<!--
+CRONOGRAMA DOCENTE — 150 minutos
+
+00–10   Bienvenida y mapa del taller
+10–25   R, RStudio, R base, paquetes y Quarto
+25–40   Pensar en R: objetos, funciones, vectores y ayuda
+40–55   Nuestros datos: importar, mirar y comprender
+55–72   Pregunta 1: localizar una observación con filter()
+72–75   Micro-pausa
+75–90   Pregunta 2: hombres y mujeres + primer gráfico
+90–103  Pregunta 3: evolución temporal
+103–116 Pregunta 4: comparación entre islas
+116–119 Micro-pausa
+119–129 Pregunta 5: lugar de nacimiento
+129–138 Pregunta 6: media y mediana
+138–147 Mini-análisis
+147–150 Cierre
+-->
+```
+# Bienvenida
+
+## ¿Qué vamos a conseguir hoy?
+
+Al terminar este taller no vas a saber *todo* R. Tampoco hace falta.
+
+El objetivo es mucho más concreto:
+
+> **Entender cómo funciona R y ser capaz de empezar a trabajar con datos.**
+
+Durante las próximas 2 horas y 30 minutos vamos a recorrer un análisis completo:
+
+``` text
+Pregunta → Datos → Explorar → Transformar → Visualizar → Interpretar
+```
+
+No vamos a aprender funciones de memoria. Vamos a utilizarlas cuando aparezca una pregunta que las necesite.
+
+### 🎯 Al terminar serás capaz de...
+
+-   reconocer qué son R y RStudio;
+-   entender qué papel tienen los paquetes;
+-   ejecutar código y guardar resultados en objetos;
+-   importar un fichero de datos;
+-   explorar su estructura;
+-   seleccionar y filtrar información;
+-   ordenar resultados;
+-   construir gráficos sencillos;
+-   interpretar lo que muestran los datos sin ir más allá de la evidencia;
+-   dejar tu análisis documentado y reproducible en Quarto.
+
+::: callout-tip
+## La idea que queremos conservar
+
+No necesitas memorizar R para empezar.
+
+Necesitas entender **cómo pensar un problema con datos** y saber dónde buscar cuando necesites una herramienta.
+:::
+
+<!-- DOCENTE: 0–10 min. Presentación breve, expectativas y mapa del taller. -->
+
+# 1. Antes de empezar: R, RStudio y los paquetes
+
+## R y RStudio no son lo mismo
+
+**R** es un lenguaje de programación y un entorno para trabajar con datos.
+
+**RStudio** es un entorno de desarrollo —un IDE— que nos facilita trabajar con R.
+
+Una forma sencilla de recordarlo:
+
+> **R es el motor. RStudio es el salpicadero.**
+
+En RStudio encontraremos, entre otras cosas:
+
+-   un editor donde escribir código;
+-   una consola donde R ejecuta instrucciones;
+-   un panel con nuestros objetos;
+-   un explorador de archivos;
+-   ayuda y visualizaciones.
+
+## R ya sabe hacer muchas cosas
+
+Cuando instalamos R, el lenguaje ya incorpora muchas funciones.
+
+A ese conjunto de herramientas solemos referirnos como **R base**.
+
+Con R base podemos, por ejemplo:
+
+-   crear objetos;
+-   hacer cálculos;
+-   trabajar con tablas;
+-   filtrar datos;
+-   crear gráficos;
+-   leer y escribir ficheros.
+
+Pero R también puede ampliarse.
+
+## Los paquetes amplían R
+
+La comunidad de R desarrolla **paquetes** que incorporan nuevas funciones y nuevas formas de resolver problemas.
+
+En este taller utilizaremos principalmente paquetes del ecosistema **tidyverse**.
+
+Algunos de ellos serán:
+
+| Paquete   | ¿Para qué lo usaremos? |
+|-----------|------------------------|
+| `readr`   | importar datos         |
+| `dplyr`   | transformar datos      |
+| `ggplot2` | visualizar datos       |
+
+::: callout-important
+## Una distinción importante
+
+`dplyr` **no es otro lenguaje distinto de R**.
+
+Cuando usamos `filter()`, seguimos programando en R. Simplemente estamos utilizando una función que aporta el paquete `dplyr`.
+
+Lo mismo ocurre con `ggplot()`: seguimos utilizando R, pero a través del paquete `ggplot2`.
+:::
+
+## La misma tarea, dos formas de escribirla
+
+Vamos a construir una tabla diminuta, solo para ver la diferencia.
+
+```{r}
+personas <- data.frame(
+  nombre = c("Ana", "Luis", "Marta", "Pedro"),
+  edad = c(28, 42, 35, 51)
+)
+
+personas
+```
+
+Queremos responder:
+
+> **¿Qué personas tienen más de 30 años?**
+
+Con R base podemos escribir:
+
+```{r}
+personas[personas$edad > 30, ]
+```
+
+Ahora cargamos `dplyr`:
+
+```{r}
+library(dplyr)
+```
+
+Y podemos expresar la misma operación así:
+
+```{r}
+personas |>
+  filter(edad > 30)
+```
+
+Las dos soluciones están escritas en **R**.
+
+La segunda utiliza una función proporcionada por `dplyr`.
+
+::: callout-note
+## ¿Por qué utilizaremos principalmente tidyverse?
+
+Porque para trabajar con datos ofrece una sintaxis bastante legible y coherente.
+
+Por ejemplo:
+
+``` text
+toma estos datos
+      ↓
+filtra estas observaciones
+      ↓
+ordena el resultado
+      ↓
+haz un gráfico
+```
+
+se parece mucho a la forma en que vamos a escribir nuestros análisis.
+:::
+
+## Instalar no es lo mismo que cargar
+
+Un paquete normalmente se **instala una vez** en el ordenador:
+
+```{r}
+#| eval: false
+install.packages("tidyverse")
+```
+
+Pero tenemos que **cargarlo en cada nueva sesión** en la que queramos utilizarlo:
+
+```{r}
+library(tidyverse)
+```
+
+::: callout-warning
+## Error habitual
+
+No es necesario ejecutar `install.packages()` cada vez que abres RStudio.
+
+-   `install.packages()` → instala el paquete en el ordenador.
+-   `library()` → lo deja disponible en la sesión actual.
+:::
+
+## Nuestro proyecto de RStudio
+
+Para trabajar de forma ordenada vamos a utilizar un **proyecto**.
+
+Nuestro proyecto tendrá una estructura parecida a esta:
+
+``` text
+primeros-pasos-r/
+├── primeros-pasos-r.qmd
+└── datos/
+    └── dataset-ISTAC-E30243A_000014.tsv
+```
+
+La ventaja es sencilla: todo lo necesario para reproducir el análisis está dentro de una misma carpeta.
+
+## ¿Y qué es este archivo `.qmd`?
+
+Este documento es un archivo **Quarto**.
+
+Aquí podemos combinar:
+
+-   texto;
+-   explicaciones;
+-   código R;
+-   resultados;
+-   gráficos;
+-   conclusiones.
+
+Así, el análisis y su explicación viven juntos.
+
+::: callout-tip
+## Reproducibilidad
+
+Un buen análisis no es solo obtener un resultado.
+
+También deberíamos poder explicar **cómo hemos llegado a él** y volver a ejecutar el proceso más adelante.
+:::
+
+<!-- DOCENTE: 10–25 min. No profundizar en sintaxis base R. El ejemplo personas sirve solo para situar R base frente a paquetes. -->
+
+# 2. Pensar en R
+
+## Objetos: poner nombre a un resultado
+
+En R podemos guardar información en un **objeto**.
+
+```{r}
+mensaje <- "Hola, R"
+mensaje
+```
+
+El operador:
+
+``` text
+<-
+```
+
+se puede leer como:
+
+> **guarda lo que está a la derecha con el nombre que está a la izquierda.**
+
+Por ejemplo:
+
+```{r}
+edad <- 35
+edad
+```
+
+Los objetos pueden contener muchas cosas:
+
+-   un número;
+-   un texto;
+-   un vector;
+-   una tabla;
+-   el resultado de un análisis.
+
+## Funciones: pedirle a R que haga algo
+
+Una función recibe instrucciones entre paréntesis.
+
+Por ejemplo:
+
+```{r}
+mean(c(4, 7, 9, 10))
+```
+
+Podemos leerlo como:
+
+> calcula la media de estos valores.
+
+La estructura general será:
+
+``` text
+funcion(argumentos)
+```
+
+No necesitamos memorizar todas las funciones de R.
+
+Necesitamos aprender a:
+
+1.  reconocerlas;
+2.  entender sus argumentos;
+3.  consultar su ayuda cuando haga falta.
+
+## Vectores: varios valores del mismo tipo
+
+Podemos crear un vector con `c()`:
+
+```{r}
+islas_ejemplo <- c(
+  "Tenerife",
+  "Gran Canaria",
+  "Lanzarote"
+)
+
+islas_ejemplo
+```
+
+Dentro de poco necesitaremos exactamente esta idea para trabajar con varias islas a la vez.
+
+## El pipe: una secuencia de pasos
+
+El operador:
+
+``` text
+|>
+```
+
+se llama **pipe**.
+
+Podemos leer:
+
+``` r
+datos |>
+  funcion()
+```
+
+como:
+
+> toma `datos` y después aplica `funcion()`.
+
+Lo utilizaremos mucho porque nuestros análisis serán secuencias de pasos.
+
+## Pedir ayuda también es programar
+
+Si no recuerdas cómo funciona una función:
+
+```{r}
+#| eval: false
+?mean
+```
+
+o:
+
+```{r}
+#| eval: false
+help(mean)
+```
+
+::: callout-tip
+## Algo que conviene aprender desde el primer día
+
+No saber de memoria una función **no significa no saber R**.
+
+Programar también consiste en consultar documentación, probar y comprobar.
+:::
+
+### 🧩 Ahora tú
+
+Crea un objeto llamado `edades` que contenga:
+
+``` text
+28, 42, 35, 51
+```
+
+y calcula su media.
+
+::: {.callout-tip collapse="true"}
+## 💡 Solución
+
+```{r}
+edades <- c(28, 42, 35, 51)
+
+mean(edades)
+```
+:::
+
+<!-- DOCENTE: 25–40 min. Mantenerlo muy práctico. No introducir tipos de datos formales, listas, factores ni estructuras avanzadas. -->
+
+# 3. Nuestros datos
+
+## Una pregunta sobre Canarias
+
+A partir de ahora vamos a trabajar con datos reales publicados por el **Instituto Canario de Estadística (ISTAC)**.
+
+El conjunto de datos contiene información sobre:
+
+> **Edad media y edad mediana según sexo y lugar de nacimiento en relación con la residencia, para Canarias, islas y municipios.**
+
+Tenemos información anual de **2021 a 2025**.
+
+La fuente de datos es el INE y la publicación corresponde al ISTAC.
+
+## Importar el fichero local
+
+El fichero está guardado dentro de nuestra carpeta `datos/`.
+
+Como es un fichero TSV —columnas separadas mediante tabuladores— utilizaremos `read_tsv()`.
+
+```{r}
+edad_canarias <- read_tsv(
+  "datos/dataset-ISTAC-E30243A_000014.tsv"
+)
+```
+
+Acabamos de hacer algo importante:
+
+``` text
+fichero TSV
+     ↓
+ read_tsv()
+     ↓
+objeto de R
+     ↓
+edad_canarias
+```
+
+## ¿Qué hemos importado?
+
+Podemos mirar directamente el objeto:
+
+```{r}
+edad_canarias
+```
+
+Y obtener una descripción más compacta:
+
+```{r}
+glimpse(edad_canarias)
+```
+
+También podemos ver sus nombres:
+
+```{r}
+names(edad_canarias)
+```
+
+Tenemos **20.160 observaciones y 9 variables**.
+
+Las variables que necesitaremos para el análisis son:
+
+``` text
+TERRITORIO
+TIME_PERIOD
+SEXO
+LUGAR_NACIMIENTO
+MEDIDAS
+OBS_VALUE
+```
+
+Las tres últimas columnas contienen atributos de observación que, en este fichero, están vacíos:
+
+``` text
+ESTADO_OBSERVACION
+CONFIDENCIALIDAD_OBSERVACION
+NOTAS_OBSERVACION
+```
+
+## Quedarnos con lo que necesitamos
+
+Nuestra primera transformación responde a una necesidad real:
+
+> Para este análisis no necesitamos todas las columnas.
+
+```{r}
+edad_canarias <- edad_canarias |>
+  select(
+    TERRITORIO,
+    TIME_PERIOD,
+    SEXO,
+    LUGAR_NACIMIENTO,
+    MEDIDAS,
+    OBS_VALUE
+  )
+```
+
+Ahora vamos a usar nombres algo más cómodos durante el taller:
+
+```{r}
+edad_canarias <- edad_canarias |>
+  rename(
+    territorio = TERRITORIO,
+    periodo = TIME_PERIOD,
+    sexo = SEXO,
+    lugar_nacimiento = LUGAR_NACIMIENTO,
+    medida = MEDIDAS,
+    valor = OBS_VALUE
+  )
+```
+
+Volvemos a mirar:
+
+```{r}
+glimpse(edad_canarias)
+```
+
+## ¿Qué valores pueden tomar nuestras variables?
+
+Antes de analizar conviene entender el contenido.
+
+```{r}
+edad_canarias |>
+  distinct(periodo)
+```
+
+```{r}
+edad_canarias |>
+  distinct(sexo)
+```
+
+```{r}
+edad_canarias |>
+  distinct(lugar_nacimiento)
+```
+
+```{r}
+edad_canarias |>
+  distinct(medida)
+```
+
+### 🧠 ¿Qué representa una fila?
+
+Cada observación queda identificada por:
+
+``` text
+Territorio
+    ×
+Periodo
+    ×
+Sexo
+    ×
+Lugar de nacimiento
+    ×
+Medida
+    ↓
+Valor
+```
+
+Por ejemplo, una fila puede significar:
+
+> Edad media de las mujeres residentes en Canarias en 2025, considerando el total de lugares de nacimiento.
+
+::: callout-important
+## Antes de analizar, comprende la tabla
+
+Una fila no representa simplemente "Canarias".
+
+Representa una **combinación concreta de todas las dimensiones**.
+:::
+
+## 🌐 Otra forma de obtener datos: una API
+
+El fichero local será nuestro camino principal durante el taller porque funciona aunque falle la conexión a Internet.
+
+Pero los mismos datos también pueden consultarse directamente desde la API estadística del ISTAC mediante el paquete `istacr`.
+
+```{r}
+#| eval: false
+
+library(istacr)
+
+edad_api <- get_statisticalresources_datasets_agency_resource_version(
+  agencyid = "ISTAC",
+  resourceid = "E30243A_000014",
+  version = "~latest"
+)$dataframe
+```
+
+No necesitamos aprender hoy cómo funciona internamente una API.
+
+Quédate con esta idea:
+
+``` text
+fichero local → R lee un archivo guardado
+
+API           → R solicita los datos directamente al proveedor
+```
+
+::: callout-note
+## En este taller
+
+Trabajaremos con el fichero local para garantizar que todos podamos avanzar juntos.
+
+La consulta mediante API queda como ejemplo de cómo automatizar posteriormente el acceso a los datos.
+:::
+
+<!-- DOCENTE: 40–55 min. La API es demostración breve, no ejercicio. La función mostrada corresponde a la versión CRAN actual de istacr. -->
+
+# 4. Pregunta 1 — ¿Cuál es la edad media de Canarias en 2025?
+
+Tenemos nuestra primera pregunta real:
+
+> **¿Cuál es la edad media de la población de Canarias en 2025?**
+
+Podemos empezar por algo aparentemente evidente.
+
+```{r}
+edad_canarias |>
+  filter(territorio == "Canarias")
+```
+
+Pero obtenemos muchas filas.
+
+¿Cuántas?
+
+```{r}
+edad_canarias |>
+  filter(territorio == "Canarias") |>
+  nrow()
+```
+
+El resultado es **210**.
+
+## ¿Por qué 210?
+
+Porque todavía dejamos variar:
+
+``` text
+5 periodos
+×
+3 categorías de sexo
+×
+7 categorías de lugar de nacimiento
+×
+2 medidas
+
+= 210 observaciones
+```
+
+Nuestra pregunta contiene más información de la que parecía.
+
+Queremos:
+
+``` text
+territorio          = Canarias
+periodo             = 2025
+sexo                = Total
+lugar de nacimiento = Total
+medida              = Edad media
+```
+
+Ahora sí:
+
+```{r}
+edad_canarias |>
+  filter(
+    territorio == "Canarias",
+    periodo == 2025,
+    sexo == "Total",
+    lugar_nacimiento == "Total",
+    medida == "Edad media"
+  )
+```
+
+El resultado es:
+
+> **44,34 años**
+
+## 🎯 Lo importante no es `filter()`
+
+Lo importante es lo que acabamos de hacer:
+
+``` text
+pregunta
+   ↓
+identificar las dimensiones
+   ↓
+traducirlas a condiciones
+   ↓
+localizar la observación
+```
+
+### 🧩 Ahora tú
+
+Busca la **edad mediana** de Canarias en 2025 para el total de la población.
+
+::: {.callout-tip collapse="true"}
+## 💡 Solución
+
+```{r}
+edad_canarias |>
+  filter(
+    territorio == "Canarias",
+    periodo == 2025,
+    sexo == "Total",
+    lugar_nacimiento == "Total",
+    medida == "Edad mediana"
+  )
+```
+
+Resultado esperado: **45,73 años**.
+:::
+
+### 📌 Qué debes recordar
+
+`filter()` selecciona **filas** que cumplen determinadas condiciones.
+
+``` r
+datos |>
+  filter(variable == valor)
+```
+
+<!-- DOCENTE: 55–72 min. Hacer el filtrado progresivamente. El momento de las 210 filas es pedagógicamente central. -->
+
+<!-- MICRO-PAUSA 72–75 min -->
+
+# 5. Pregunta 2 — ¿Es igual para hombres y mujeres?
+
+Hasta ahora hemos fijado:
+
+``` text
+sexo = Total
+```
+
+Pero ahora queremos que el sexo **varíe**.
+
+La pregunta es:
+
+> **¿La edad media en Canarias en 2025 es igual para hombres y mujeres?**
+
+```{r}
+edad_sexo <- edad_canarias |>
+  filter(
+    territorio == "Canarias",
+    periodo == 2025,
+    sexo != "Total",
+    lugar_nacimiento == "Total",
+    medida == "Edad media"
+  )
+
+edad_sexo
+```
+
+Obtenemos:
+
+``` text
+Hombres → 43,42 años
+Mujeres → 45,23 años
+```
+
+## Ver la comparación
+
+Podemos representar esos datos mediante barras:
+
+```{r}
+ggplot(
+  edad_sexo,
+  aes(
+    x = sexo,
+    y = valor
+  )
+) +
+  geom_col()
+```
+
+## ¿Qué acabamos de decirle a `ggplot2`?
+
+``` text
+edad_sexo
+    ↓
+estos son los datos
+
+x = sexo
+    ↓
+quiero comparar categorías
+
+y = valor
+    ↓
+esta es la magnitud numérica
+
+geom_col()
+    ↓
+quiero representarla con barras
+```
+
+### 🧠 Interpretar no es inventar
+
+A partir de estos datos podemos decir:
+
+> En Canarias, en 2025, la edad media de las mujeres es superior a la de los hombres.
+
+Pero los datos **no permiten afirmar directamente**:
+
+> Las mujeres viven más porque su edad media es mayor.
+
+Eso necesitaría otra pregunta, otros datos y otro análisis.
+
+::: callout-important
+## Tres niveles distintos
+
+**Descripción:** qué muestran los datos.
+
+**Interpretación:** qué patrón observamos y cómo podemos contextualizarlo.
+
+**Causalidad:** por qué ocurre.
+
+No debemos saltar automáticamente del primero al tercero.
+:::
+
+### 🧩 Ahora tú
+
+Modifica el código para comparar hombres y mujeres utilizando **edad mediana**.
+
+::: {.callout-tip collapse="true"}
+## 💡 Solución
+
+```{r}
+edad_canarias |>
+  filter(
+    territorio == "Canarias",
+    periodo == 2025,
+    sexo != "Total",
+    lugar_nacimiento == "Total",
+    medida == "Edad mediana"
+  ) |>
+  ggplot(
+    aes(
+      x = sexo,
+      y = valor
+    )
+  ) +
+  geom_col()
+```
+:::
+
+<!-- DOCENTE: 75–90 min. Primer gráfico. Evitar entrar todavía en temas, colores o personalización. -->
+
+# 6. Pregunta 3 — ¿Cómo ha evolucionado desde 2021?
+
+Ahora queremos estudiar una dimensión diferente:
+
+> **¿Cómo ha evolucionado la edad media de Canarias entre 2021 y 2025?**
+
+Antes fijábamos:
+
+``` text
+periodo = 2025
+```
+
+Ahora queremos dejar que `periodo` varíe.
+
+```{r}
+evolucion_canarias <- edad_canarias |>
+  filter(
+    territorio == "Canarias",
+    sexo == "Total",
+    lugar_nacimiento == "Total",
+    medida == "Edad media"
+  )
+
+evolucion_canarias
+```
+
+Podemos ordenar cronológicamente:
+
+```{r}
+evolucion_canarias |>
+  arrange(periodo)
+```
+
+Y ahora utilizar una línea:
+
+```{r}
+ggplot(
+  evolucion_canarias,
+  aes(
+    x = periodo,
+    y = valor
+  )
+) +
+  geom_line() +
+  geom_point()
+```
+
+Los valores pasan de **43,06 años en 2021** a **44,34 años en 2025**.
+
+## El gráfico cambia porque cambia la pregunta
+
+Antes queríamos comparar categorías:
+
+``` text
+sexo → barras
+```
+
+Ahora queremos observar una evolución:
+
+``` text
+tiempo → línea
+```
+
+No estamos memorizando gráficos.
+
+Estamos eligiendo una representación en función de la pregunta.
+
+### 🧩 Ahora tú
+
+Representa la evolución de la **edad mediana** de Canarias.
+
+::: {.callout-tip collapse="true"}
+## 💡 Solución
+
+```{r}
+edad_canarias |>
+  filter(
+    territorio == "Canarias",
+    sexo == "Total",
+    lugar_nacimiento == "Total",
+    medida == "Edad mediana"
+  ) |>
+  ggplot(
+    aes(
+      x = periodo,
+      y = valor
+    )
+  ) +
+  geom_line() +
+  geom_point()
+```
+:::
+
+### 📌 Qué debes recordar
+
+`arrange()` ordena filas.
+
+``` r
+datos |>
+  arrange(variable)
+```
+
+Y podemos invertir el orden con:
+
+``` r
+datos |>
+  arrange(desc(variable))
+```
+
+<!-- DOCENTE: 90–103 min. Enfatizar que quitar un filtro deja variar una dimensión. -->
+
+# 7. Pregunta 4 — ¿Es igual en todas las islas?
+
+Ahora cambiamos de escala territorial:
+
+> **¿Todas las islas tienen la misma edad media en 2025?**
+
+Nuestro fichero contiene Canarias, islas y municipios, pero no tiene una columna que identifique directamente el nivel territorial.
+
+Por eso vamos a definir qué territorios queremos estudiar.
+
+```{r}
+islas <- c(
+  "El Hierro",
+  "Fuerteventura",
+  "Gran Canaria",
+  "La Gomera",
+  "La Palma",
+  "Lanzarote",
+  "Tenerife"
+)
+```
+
+Acabamos de utilizar un **vector** para resolver un problema real.
+
+Ahora filtramos:
+
+```{r}
+edad_islas <- edad_canarias |>
+  filter(
+    territorio %in% islas,
+    periodo == 2025,
+    sexo == "Total",
+    lugar_nacimiento == "Total",
+    medida == "Edad media"
+  )
+
+edad_islas
+```
+
+El operador `%in%` se puede leer como:
+
+> ¿Este valor está dentro de este conjunto de valores?
+
+## ¿Cuál tiene mayor edad media?
+
+```{r}
+edad_islas |>
+  arrange(desc(valor))
+```
+
+En 2025:
+
+``` text
+La Gomera     → 48,02
+El Hierro     → 46,66
+La Palma      → 46,50
+Gran Canaria  → 44,78
+Tenerife      → 44,49
+Lanzarote     → 41,79
+Fuerteventura → 41,19
+```
+
+## Compararlo visualmente
+
+```{r}
+ggplot(
+  edad_islas,
+  aes(
+    x = reorder(territorio, valor),
+    y = valor
+  )
+) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    x = NULL,
+    y = "Edad media",
+    title = "Edad media de la población por isla",
+    subtitle = "2025"
+  )
+```
+
+Aquí hemos añadido algunos detalles para mejorar la lectura del gráfico.
+
+No necesitas memorizar `reorder()`, `coord_flip()` o `labs()` hoy.
+
+Lo importante sigue siendo:
+
+``` text
+datos
+  ↓
+variable que comparamos
+  ↓
+valor numérico
+  ↓
+representación
+```
+
+### 🧩 Ahora tú
+
+¿Cuál es la isla con menor edad media en 2025?
+
+Intenta responder primero con una tabla ordenada.
+
+::: {.callout-tip collapse="true"}
+## 💡 Solución
+
+```{r}
+edad_islas |>
+  arrange(valor)
+```
+
+La menor edad media corresponde a **Fuerteventura: 41,19 años**.
+:::
+
+<!-- DOCENTE: 103–116 min. Aquí reaparece el vector con una utilidad real. No explicar reorder() en profundidad. -->
+
+<!-- MICRO-PAUSA 116–119 min -->
+
+# 8. Pregunta 5 — ¿Qué cambia según el lugar de nacimiento?
+
+Nuestro conjunto de datos todavía contiene una dimensión que apenas hemos utilizado:
+
+``` text
+lugar_nacimiento
+```
+
+Vamos a comparar tres categorías conceptualmente sencillas:
+
+``` r
+c(
+  "Canarias",
+  "Resto de España",
+  "Extranjero"
+)
+```
+
+La pregunta es:
+
+> **¿La edad media de la población residente en Canarias difiere según el lugar de nacimiento?**
+
+```{r}
+origen <- c(
+  "Canarias",
+  "Resto de España",
+  "Extranjero"
+)
+```
+
+```{r}
+edad_origen <- edad_canarias |>
+  filter(
+    territorio == "Canarias",
+    periodo == 2025,
+    sexo == "Total",
+    lugar_nacimiento %in% origen,
+    medida == "Edad media"
+  )
+
+edad_origen
+```
+
+Los resultados son:
+
+``` text
+Canarias         → 43,71
+Resto de España  → 48,90
+Extranjero       → 44,54
+```
+
+Podemos representarlos:
+
+```{r}
+ggplot(
+  edad_origen,
+  aes(
+    x = lugar_nacimiento,
+    y = valor
+  )
+) +
+  geom_col() +
+  labs(
+    x = NULL,
+    y = "Edad media",
+    title = "Edad media según lugar de nacimiento",
+    subtitle = "Canarias, 2025"
+  )
+```
+
+## 🧠 Una pregunta metodológica
+
+¿Cuál de estas dos frases está mejor respaldada por los datos?
+
+1.  "En 2025 existen diferencias en la edad media según el lugar de nacimiento."
+2.  "El lugar de nacimiento causa las diferencias de edad."
+
+La primera.
+
+Estamos describiendo una asociación observada. No hemos realizado un análisis causal.
+
+<!-- DOCENTE: 119–129 min. Reutilización deliberada de herramientas ya conocidas. No introducir sintaxis nueva. -->
+
+# 9. Pregunta 6 — ¿Media y mediana cuentan la misma historia?
+
+Hasta ahora hemos trabajado principalmente con **edad media**.
+
+Pero el dataset contiene otra medida.
+
+```{r}
+edad_canarias |>
+  distinct(medida)
+```
+
+Tenemos:
+
+``` text
+Edad media
+Edad mediana
+```
+
+De forma muy simplificada:
+
+-   **media** → promedio de las edades;
+-   **mediana** → edad que deja a la mitad de la población por debajo y a la otra mitad por encima.
+
+La pregunta es:
+
+> **¿La comparación entre islas cambia si miramos la mediana en lugar de la media?**
+
+```{r}
+edad_islas_medidas <- edad_canarias |>
+  filter(
+    territorio %in% islas,
+    periodo == 2025,
+    sexo == "Total",
+    lugar_nacimiento == "Total"
+  )
+
+edad_islas_medidas
+```
+
+Ahora tenemos dos valores por isla.
+
+Podemos añadir una tercera variable al gráfico mediante `fill`:
+
+```{r}
+ggplot(
+  edad_islas_medidas,
+  aes(
+    x = territorio,
+    y = valor,
+    fill = medida
+  )
+) +
+  geom_col(position = "dodge") +
+  coord_flip() +
+  labs(
+    x = NULL,
+    y = "Edad",
+    fill = NULL,
+    title = "Edad media y mediana por isla",
+    subtitle = "2025"
+  )
+```
+
+## 🧠 ¿Qué cambia aquí?
+
+Al principio del taller buscábamos **un número**.
+
+Ahora somos capaces de:
+
+-   seleccionar varias dimensiones;
+-   comparar territorios;
+-   comparar dos medidas;
+-   construir una visualización;
+-   interpretar con cautela.
+
+Eso ya es un pequeño análisis de datos.
+
+::: callout-note
+## Algo que no vamos a hacer
+
+No calcularemos una "media de las edades medias" de las islas para obtener Canarias.
+
+Los valores del dataset ya son estadísticas agregadas de poblaciones concretas. Promediarlas sin ponderar no reproduce necesariamente la estadística del territorio superior.
+:::
+
+<!-- DOCENTE: 129–138 min. Introducir media/mediana conceptualmente, no derivar fórmulas. -->
+
+# 10. Tu primer mini-análisis
+
+Ahora toca recorrer el proceso completo.
+
+``` text
+Pregunta
+   ↓
+Datos
+   ↓
+Selección
+   ↓
+Visualización
+   ↓
+Interpretación
+```
+
+Elige **una** de estas preguntas.
+
+### Opción A — Sexo
+
+> ¿Cómo ha evolucionado la edad media de hombres y mujeres en Canarias entre 2021 y 2025?
+
+### Opción B — Territorio
+
+> ¿Qué diferencias existen entre las islas en la edad mediana de 2025?
+
+### Opción C — Lugar de nacimiento
+
+> ¿Cómo difiere la edad media en Canarias entre personas nacidas en Canarias, en el resto de España y en el extranjero?
+
+## 🧩 Tu plantilla
+
+Completa estas preguntas antes de escribir código:
+
+1.  ¿Cuál es mi pregunta?
+2.  ¿Qué variable quiero comparar?
+3.  ¿Qué dimensiones necesito mantener fijas?
+4.  ¿Qué filas necesito seleccionar?
+5.  ¿Qué gráfico responde mejor a la pregunta?
+6.  ¿Qué muestran los datos?
+7.  ¿Qué **no** puedo concluir?
+
+### Opción A — pista
+
+```{r}
+#| eval: false
+
+edad_canarias |>
+  filter(
+    territorio == "...",
+    sexo != "...",
+    lugar_nacimiento == "...",
+    medida == "..."
+  )
+```
+
+### Opción B — pista
+
+```{r}
+#| eval: false
+
+edad_canarias |>
+  filter(
+    territorio %in% islas,
+    periodo == ...,
+    sexo == "...",
+    lugar_nacimiento == "...",
+    medida == "..."
+  )
+```
+
+### Opción C — pista
+
+```{r}
+#| eval: false
+
+edad_canarias |>
+  filter(
+    territorio == "...",
+    periodo == ...,
+    sexo == "...",
+    lugar_nacimiento %in% origen,
+    medida == "..."
+  )
+```
+
+::: {.callout-tip collapse="true"}
+## 💡 Una posible solución — Opción A
+
+```{r}
+sexo_evolucion <- edad_canarias |>
+  filter(
+    territorio == "Canarias",
+    sexo != "Total",
+    lugar_nacimiento == "Total",
+    medida == "Edad media"
+  )
+
+ggplot(
+  sexo_evolucion,
+  aes(
+    x = periodo,
+    y = valor,
+    group = sexo,
+    linetype = sexo
+  )
+) +
+  geom_line() +
+  geom_point() +
+  labs(
+    x = NULL,
+    y = "Edad media",
+    linetype = NULL,
+    title = "Evolución de la edad media por sexo",
+    subtitle = "Canarias, 2021–2025"
+  )
+```
+
+Una descripción válida sería:
+
+> La edad media aumenta entre 2021 y 2025 tanto entre los hombres como entre las mujeres, manteniéndose durante todo el periodo una edad media mayor entre las mujeres.
+:::
+
+::: {.callout-tip collapse="true"}
+## 💡 Una posible solución — Opción B
+
+```{r}
+edad_canarias |>
+  filter(
+    territorio %in% islas,
+    periodo == 2025,
+    sexo == "Total",
+    lugar_nacimiento == "Total",
+    medida == "Edad mediana"
+  ) |>
+  ggplot(
+    aes(
+      x = reorder(territorio, valor),
+      y = valor
+    )
+  ) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    x = NULL,
+    y = "Edad mediana",
+    title = "Edad mediana por isla",
+    subtitle = "2025"
+  )
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## 💡 Una posible solución — Opción C
+
+```{r}
+edad_canarias |>
+  filter(
+    territorio == "Canarias",
+    periodo == 2025,
+    sexo == "Total",
+    lugar_nacimiento %in% origen,
+    medida == "Edad media"
+  ) |>
+  ggplot(
+    aes(
+      x = lugar_nacimiento,
+      y = valor
+    )
+  ) +
+  geom_col() +
+  labs(
+    x = NULL,
+    y = "Edad media",
+    title = "Edad media según lugar de nacimiento",
+    subtitle = "Canarias, 2025"
+  )
+```
+:::
+
+<!-- DOCENTE: 138–147 min. Trabajo individual o por parejas. No hace falta que todos completen todo. El objetivo es que puedan plantear el proceso. -->
+
+# 11. ¿Qué sabemos hacer ahora?
+
+Hace dos horas y media, nuestro punto de partida era:
+
+``` text
+un fichero de datos
+```
+
+Ahora sabemos recorrer:
+
+``` text
+Pregunta
+   ↓
+Importar
+   ↓
+Explorar
+   ↓
+Seleccionar
+   ↓
+Filtrar
+   ↓
+Ordenar
+   ↓
+Visualizar
+   ↓
+Interpretar
+```
+
+Y hemos utilizado herramientas como:
+
+``` text
+read_tsv()
+glimpse()
+distinct()
+select()
+rename()
+filter()
+arrange()
+ggplot()
+geom_col()
+geom_line()
+geom_point()
+```
+
+Pero esa lista **no es lo más importante**.
+
+Lo importante es que ya sabemos para qué las necesitamos.
+
+## Lo que deliberadamente no hemos visto
+
+R es muchísimo más amplio.
+
+Hoy no necesitábamos entrar en:
+
+-   bucles;
+-   funciones propias;
+-   joins;
+-   pivotado de tablas;
+-   modelos estadísticos;
+-   inferencia;
+-   programación funcional;
+-   APIs en profundidad;
+-   desarrollo de paquetes.
+
+Eso vendrá cuando una pregunta lo requiera.
+
+## Para seguir aprendiendo
+
+Un buen siguiente paso es repetir este mismo esquema con otro conjunto de datos:
+
+``` text
+1. formula una pregunta;
+2. comprende la estructura de los datos;
+3. selecciona lo necesario;
+4. transforma solo lo que haga falta;
+5. visualiza;
+6. interpreta;
+7. documenta lo que has hecho.
+```
+
+::: callout-important
+## Para terminar
+
+**No necesitas saber R para empezar a trabajar con datos.**
+
+**Necesitas empezar a trabajar con datos para aprender R.**
+:::
+
+<!-- DOCENTE: 147–150 min. Cierre, recursos y comunidad R Hispano. -->
+
+# Apéndice A — Errores habituales
+
+## "could not find function"
+
+Si aparece algo como:
+
+``` text
+could not find function "filter"
+```
+
+comprueba que has cargado el paquete correspondiente:
+
+``` r
+library(tidyverse)
+```
+
+## "object not found"
+
+Si R dice:
+
+``` text
+object 'edad_canarias' not found
+```
+
+probablemente no has ejecutado todavía el código que crea ese objeto.
+
+Recuerda que Quarto contiene el código, pero R solo conoce aquello que se ha ejecutado en la sesión actual.
+
+## No encuentro el fichero
+
+Si:
+
+``` r
+read_tsv("datos/...")
+```
+
+no encuentra el archivo, comprueba que:
+
+-   has abierto el proyecto correcto;
+-   existe la carpeta `datos`;
+-   el fichero está dentro de ella;
+-   el nombre coincide exactamente.
+
+## `==` no es `<-`
+
+Son cosas distintas:
+
+``` r
+edad <- 35
+```
+
+guarda un valor.
+
+``` r
+edad == 35
+```
+
+pregunta si ambos valores son iguales.
+
+## R distingue mayúsculas y minúsculas
+
+``` text
+Canarias
+```
+
+no es lo mismo que:
+
+``` text
+canarias
+```
+
+Lo mismo ocurre con los nombres de los objetos.
+
+# Apéndice B — Retos opcionales
+
+## 🚀 Reto 1
+
+Compara la evolución de la edad media de Tenerife y Gran Canaria entre 2021 y 2025.
+
+## 🚀 Reto 2
+
+Busca qué isla presenta en 2025 la mayor diferencia entre edad media y edad mediana.
+
+## 🚀 Reto 3
+
+Repite una de las preguntas del taller para un municipio que conozcas.
+
+## 🚀 Reto 4
+
+Busca en la ayuda de `ggplot2` cómo añadir un título y etiquetas a los ejes sin mirar las soluciones del taller.
+
+# Apéndice C — Chuleta mínima
+
+## Importar
+
+``` r
+datos <- read_tsv("ruta/al/fichero.tsv")
+```
+
+## Mirar
+
+``` r
+datos
+glimpse(datos)
+names(datos)
+```
+
+## Valores distintos
+
+``` r
+datos |>
+  distinct(variable)
+```
+
+## Elegir columnas
+
+``` r
+datos |>
+  select(variable1, variable2)
+```
+
+## Renombrar
+
+``` r
+datos |>
+  rename(nuevo_nombre = nombre_anterior)
+```
+
+## Filtrar
+
+``` r
+datos |>
+  filter(variable == "valor")
+```
+
+## Varios valores
+
+``` r
+datos |>
+  filter(variable %in% c("A", "B"))
+```
+
+## Ordenar
+
+``` r
+datos |>
+  arrange(variable)
+```
+
+``` r
+datos |>
+  arrange(desc(variable))
+```
+
+## Barras
+
+``` r
+ggplot(datos, aes(x = categoria, y = valor)) +
+  geom_col()
+```
+
+## Línea
+
+``` r
+ggplot(datos, aes(x = tiempo, y = valor)) +
+  geom_line() +
+  geom_point()
+```
