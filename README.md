@@ -156,3 +156,10 @@ Los ejemplos de código incluidos en el documento forman parte del material doce
 ---
 
 **El objetivo no es memorizar funciones: es empezar a pensar y trabajar con datos usando R.**
+
+
+## Ampliación del taller: visualización de datos estadísticos mediante tableros
+
+El taller de iniciación se complementa con un apartado final sobre visualización de datos mediante tablerosf (_dashboards_) como herramienta puntera para la comunicación de resultados. Sin abandonar el nivel principiante, se aprenderá a realizar un tablero básico con los mismos datos utilizados en la primera parte del taller. Finalmente, experimentaremos con el uso de IA generativa para crear tableros más elabotrados sin necesidad de sabar programar.
+
+La dinámica es la misma que en el resto del taller: seguir el guión y ejecutar el código en el archivo `visualizacion-tableros-r.qmd`. Aunque hay que tener en cuenta que al ejecutar las aplicaciones, la consola puede quedar bloqueada mientras se está ejecutando.
