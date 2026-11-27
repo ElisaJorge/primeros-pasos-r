@@ -11,6 +11,7 @@ format:
     code-copy: true
     code-overflow: wrap
     smooth-scroll: true
+    embed-resources: true
 execute:
   echo: true
   warning: false
@@ -28,7 +29,7 @@ execute:
 
 * Por diseño, pensados para ser impresos en papel, formato [pdf]{.red}
 
-[Descargar](http://emilio.lcano.com/p/enbis2023/static_report.Rmd) .Rmd source | [Ver online](http://emilio.lcano.com/p/enbis2023/static_report.pdf)
+[Descargar](https://lcano.com/p/enbis2023/static_report.Rmd) .Rmd source | [Ver online](https://lcano.com/p/enbis2023/static_report.pdf)
 
 ![](img/static_report.png){fig-align=center, width=420}
   
@@ -37,7 +38,7 @@ execute:
 Más compactos, diseñado para pantalla
 
 
-[Descargar](http://emilio.lcano.com/p/enbis2023/static_dashboard.Rmd) .Rmd source | [Ver online](http://emilio.lcano.com/p/enbis2023/static_dashboard.html)
+[Descargar](https://lcano.com/p/enbis2023/static_dashboard.Rmd) .Rmd source | [Ver online](https://lcano.com/p/enbis2023/static_dashboard.html)
   
 ![](img/static_dashboard.png){fig-align=center}
 
@@ -45,7 +46,7 @@ Más compactos, diseñado para pantalla
   
 Informe estático con elementos interactivos (_widgets_)
 
-[Descargar](http://emilio.lcano.com/p/enbis2023/interactive_dashboard.Rmd) .Rmd source | [Ver online](http://emilio.lcano.com/p/enbis2023/interactive_dashboard.html)
+[Descargar](https://lcano.com/p/enbis2023/interactive_dashboard.Rmd) .Rmd source | [Ver online](https://lcano.com/p/enbis2023/interactive_dashboard.html)
   
 ![](img/interactive_dashboard.png){fig-align=center}
 
@@ -150,7 +151,7 @@ shinyApp(ui = ui, server = server)
   
 🖥️ Live demo 🤞🏻
 
-
+💡 Copia el código de cada ejemplo en la consola de R y la aplicación se ejecutará. Los paquetes requeridos deben estar instalados.
 
   
 # Aplicación shiny para datos ISTAC paso a paso
@@ -578,13 +579,13 @@ shinyApp(ui, server)
 
 2. Añade un mapa de Canarias con los territorios coloreados según la media o mediana de edad.
 
-3. Crea una aplicación desde cero utilizando tu herramienta de IA generativa favorita. 
+3. Crea una aplicación desde cero utilizando tu herramienta de IA generativa favorita. También puedes abordar los dos ejercicios anteriores incluyendo en los prompts el código que hemos ido desarrollando en esta presentación.
 
 
 
 # Preguntas? 
 
-`❓ [@emilopezcano](https://x.com/emilopezcano)
+❓ [@emilopezcano](https://x.com/emilopezcano)
 
 
 [http://lcano.com](https://lcano.com)
